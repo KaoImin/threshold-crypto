@@ -1,0 +1,16 @@
+[package]
+name = "threshold-crypto"
+version = "0.1.0"
+authors = ["Eason Gao <kaoimin@qq.com>"]
+edition = "2018"
+license = "MIT"
+include = ["Cargo.toml", "src/*", "README.md", "LICENSE"]
+readme = "README.md"
+repository = "https://github.com/KaoImin/threshold-crypto"
+description = """
+A threshold crypto system with distributed key generation.
+"""
+
+[dependencies]
+pairing = "0.14"
+rand = "0.5"
