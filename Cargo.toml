@@ -12,5 +12,9 @@ A threshold crypto system with distributed key generation.
 """
 
 [dependencies]
+blake2b_simd = "0.4"
 pairing = "0.14"
 rand = "0.4"
+rand_core = "0.3"
+rand_chacha = "0.1"
+rand04_compat = "0.1"

@@ -46,15 +46,13 @@ impl KeyGenerator {
     }
 
     ///
-    pub fn set_node_coef(&mut self, secret_id: u32, coefs: &Vec<G2>) -> Result<(), Error> {
+    pub fn set_node_coef(&mut self, secret_id: u32, coefs: &[G2]) -> Result<(), Error> {
         if coefs.len() != self.t {
             return Err(Error::NumOfTermsErr);
         }
-        let res = self
-            .a
-            .insert(secret_id, coefs.clone())
-            .map_or_else(|| Ok(()), |_| Err(Error::CoefsInexistence));
-        res
+        self.a
+            .insert(secret_id, coefs.to_vec())
+            .map_or_else(|| Ok(()), |_| Err(Error::CoefsInexistence))
     }
 
     ///
@@ -74,8 +72,8 @@ impl KeyGenerator {
                 let mut jk = Fr::one();
                 lhs.mul_assign(*secret);
 
-                for i in 0..self.t {
-                    let mut tmp = coefs[i];
+                for item in coefs.iter().take(self.t) {
+                    let mut tmp = *item;
                     tmp.mul_assign(jk);
                     rhs.add_assign(&tmp);
                     jk.mul_assign(&j_fr);

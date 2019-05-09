@@ -21,7 +21,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let msg: String = match *self {
             Error::NoCoef(i) => format!("Do not find coef in id {:?}", i),
-            _ => format!(""),
+            _ => "".to_string(),
         };
         f.write_fmt(format_args!("Threshold Crypto Error ({})", msg))
     }

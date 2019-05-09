@@ -2,12 +2,12 @@ use pairing::bls12_381::Fr;
 use rand::{thread_rng, Rand};
 
 pub(crate) struct Polynomial {
-    pub(crate) order: u32,
+    pub(crate) order: usize,
     pub(crate) coef: Vec<Fr>,
 }
 
 impl Polynomial {
-    pub(crate) fn new(order: u32) -> Self {
+    pub(crate) fn new(order: usize) -> Self {
         Polynomial {
             order,
             coef: generate_coef(order),
@@ -15,7 +15,7 @@ impl Polynomial {
     }
 }
 
-pub(crate) fn generate_coef(order: u32) -> Vec<Fr> {
+pub(crate) fn generate_coef(order: usize) -> Vec<Fr> {
     let mut res = Vec::new();
     let rng = &mut thread_rng();
     for _ in 0..order {
