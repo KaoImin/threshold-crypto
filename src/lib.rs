@@ -4,6 +4,8 @@
 #![deny(missing_docs)]
 
 ///
+pub mod error;
+///
 pub mod key_generation;
 ///
 pub mod threshold_crypto;
