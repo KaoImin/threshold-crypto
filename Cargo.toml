@@ -13,4 +13,4 @@ A threshold crypto system with distributed key generation.
 
 [dependencies]
 pairing = "0.14"
-rand = "0.5"
+rand = "0.4"
