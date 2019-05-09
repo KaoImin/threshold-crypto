@@ -1,6 +1,6 @@
-use crate::{error::Error, util::generate_coef, NodeInfo};
+use crate::error::Error;
 use pairing::{
-    bls12_381::{Fr, G1, G2},
+    bls12_381::{Fr, G2},
     CurveProjective, Field, PrimeField,
 };
 use std::collections::BTreeMap;
@@ -155,55 +155,5 @@ impl KeyGenerator {
     fn clean_veto_id(&mut self, id: u32) {
         self.a.remove(&id);
         self.user_poly_secret.remove(&id);
-    } 
-}
-
-impl NodeInfo {
-    fn broadcast_a(&mut self) -> Vec<G2> {
-        let mut res: Vec<G2> = Vec::new();
-        for value in &self.poly.coef {
-            let mut g2 = G2::one();
-            g2.mul_assign(*value);
-            res.push(g2);
-        }
-        res
-    }
-
-    fn broadcast_s(&mut self, n: u32) -> Vec<Fr> {
-        let mut res: Vec<Fr> = Vec::new();
-        for i in 0..n {
-            res.push(self.cal_secret(i + 1));
-        }
-        res
-    }
-
-    fn cal_secret(&mut self, aim: u32) -> Fr {
-        // TODO
-        let j_fr: Fr = Fr::from_str(&aim.to_string()).unwrap();
-        let mut jk = Fr::one();
-        let mut res = Fr::zero();
-        for coef in &self.poly.coef {
-            jk.mul_assign(coef);
-            res.add_assign(&jk);
-            jk.mul_assign(&j_fr);
-        }
-        res
-    }
-
-    fn verify_specific(&self, sk: Fr, from_usr: u32, to_usr: u32, pool: &[Vec<G2>]) -> bool {
-        let mut lhs = G2::one();
-        let mut rhs = G2::zero();
-        let j_fr: Fr = Fr::from_str(&to_usr.to_string()).unwrap();
-        let mut jk = Fr::one();
-        lhs.mul_assign(sk);
-
-        for i in 0..self.poly.order {
-            let mut tmp = pool[from_usr as usize][i as usize];
-            tmp.mul_assign(jk);
-            rhs.add_assign(&tmp);
-            jk.mul_assign(&j_fr);
-        }
-
-        lhs == rhs
     }
 }
