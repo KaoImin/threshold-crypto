@@ -6,17 +6,17 @@ use pairing::{
 use std::collections::BTreeMap;
 
 ///
-pub struct KeyGenerator {
+pub(crate) struct KeyGenerator {
     ///
-    pub a: BTreeMap<u32, Vec<G2>>,
+    pub(crate) a: BTreeMap<u32, Vec<G2>>,
     ///
-    pub qual: Vec<u32>,
+    pub(crate) qual: Vec<u32>,
     ///
-    pub coef: Vec<G2>,
+    pub(crate) coef: Vec<G2>,
     ///
-    pub n: usize,
+    pub(crate) n: usize,
     ///
-    pub t: usize,
+    pub(crate) t: usize,
     ///
     local_id: u32,
     ///
@@ -25,7 +25,7 @@ pub struct KeyGenerator {
 
 impl KeyGenerator {
     ///
-    pub fn new(local_id: u32, n: usize, t: usize) -> Self {
+    pub(crate) fn new(local_id: u32, n: usize, t: usize) -> Self {
         KeyGenerator {
             a: BTreeMap::new(),
             qual: Vec::new(),
@@ -38,7 +38,7 @@ impl KeyGenerator {
     }
 
     ///
-    pub fn get_mpk(&self) -> Result<G2, Error> {
+    pub(crate) fn get_mpk(&self) -> Result<G2, Error> {
         if self.coef.is_empty() {
             return Err(Error::NoPolyCoef);
         }
@@ -46,7 +46,7 @@ impl KeyGenerator {
     }
 
     ///
-    pub fn set_node_coef(&mut self, secret_id: u32, coefs: &[G2]) -> Result<(), Error> {
+    pub(crate) fn set_node_coef(&mut self, secret_id: u32, coefs: &[G2]) -> Result<(), Error> {
         if coefs.len() != self.t {
             return Err(Error::NumOfTermsErr);
         }
@@ -56,14 +56,14 @@ impl KeyGenerator {
     }
 
     ///
-    pub fn set_node_secret(&mut self, secret_id: u32, secret: Fr) -> Result<(), Error> {
+    pub(crate) fn set_node_secret(&mut self, secret_id: u32, secret: Fr) -> Result<(), Error> {
         self.user_poly_secret
             .insert(secret_id, secret)
             .map_or_else(|| Ok(()), |_| Err(Error::SecretInexistence))
     }
 
     ///
-    pub fn verify(&self, id: u32) -> bool {
+    pub(crate) fn verify(&self, id: u32) -> bool {
         let res = self.user_poly_secret.get(&id).and_then(|secret| {
             self.a.get(&id).and_then(|coefs| {
                 let mut lhs = G2::one();
@@ -85,7 +85,7 @@ impl KeyGenerator {
     }
 
     ///
-    pub fn gen_sk(&self) -> Option<Fr> {
+    pub(crate) fn gen_sk(&self) -> Option<Fr> {
         let mut sk = Fr::zero();
         for id in self.qual.iter() {
             if let Some(one_sk) = self.user_poly_secret.get(id) {
@@ -98,7 +98,7 @@ impl KeyGenerator {
     }
 
     ///
-    pub fn gen_pk(&self, local_id: u32) -> Option<G2> {
+    pub(crate) fn gen_pk(&self, local_id: u32) -> Option<G2> {
         let mut pk = G2::zero();
         let i_fr = Fr::from_str(&local_id.to_string()).unwrap();
         let mut ik = Fr::one();
@@ -113,7 +113,7 @@ impl KeyGenerator {
     }
 
     ///
-    pub fn gen_mpk(&self) -> Option<G2> {
+    pub(crate) fn gen_mpk(&self) -> Option<G2> {
         if self.coef.is_empty() {
             return None;
         }
@@ -121,7 +121,7 @@ impl KeyGenerator {
     }
 
     ///
-    pub fn get_qual(&mut self) -> Vec<u32> {
+    pub(crate) fn get_qual(&mut self) -> Vec<u32> {
         let ids: Vec<u32> = self.a.keys().cloned().collect();
         for i in ids.iter() {
             if self.verify(*i) {
@@ -134,7 +134,7 @@ impl KeyGenerator {
     }
 
     ///
-    pub fn gen_coefs(&mut self) -> Result<(), Error> {
+    pub(crate) fn gen_coefs(&mut self) -> Result<(), Error> {
         for i in 0..self.t {
             let mut res = G2::zero();
             for j in self.qual.iter() {

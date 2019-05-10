@@ -8,6 +8,9 @@ pub mod error;
 ///
 pub mod key_generation;
 ///
-pub mod threshold_crypto;
+pub mod node;
 ///
 pub(crate) mod util;
+
+///
+pub use node::NodeInfo;

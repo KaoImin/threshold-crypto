@@ -166,3 +166,48 @@ impl NodeInfo {
         up
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use pairing::bls12_381::FrRepr;
+    use rand::Rand;
+
+    #[test]
+    fn test_pairing() {
+        let rng_0 = &mut rand::thread_rng();
+        let rng_1 = &mut rand::thread_rng();
+        let mut g1_1 = G1::one();
+        let mut g2_1 = G2::one();
+        let mut g1_2 = G1::one();
+        let mut g2_2 = G2::one();
+        let g1_3 = G1::one();
+        let g2_3 = G2::one();
+        let mut a = Fr::rand(rng_0);
+        let b = Fr::rand(rng_1);
+        g1_1.mul_assign(a);
+        g2_1.mul_assign(b);
+        g1_2.mul_assign(b);
+        g2_2.mul_assign(a);
+        a.mul_assign(&b);
+        let part_0 = G1Affine::from(g1_1).pairing_with(&G2Affine::from(g2_1));
+        let part_1 = G1Affine::from(g1_2).pairing_with(&G2Affine::from(g2_2));
+        let part_2 = G1Affine::from(g1_3)
+            .pairing_with(&G2Affine::from(g2_3))
+            .pow(FrRepr::from(a));
+        assert!(part_0 == part_1);
+        assert!(part_0 == part_2);
+    }
+
+    #[test]
+    fn test_abel() {
+        let rng_0 = &mut rand::thread_rng();
+        let rng_1 = &mut rand::thread_rng();
+        let i = G1::rand(rng_0);
+        let mut j = G1::rand(rng_1);
+        let mut tmp = i.clone();
+        tmp.add_assign(&j);
+        j.add_assign(&i);
+        assert!(j == tmp);
+    }
+}
