@@ -2,8 +2,8 @@ use crate::{error::Error, key_generation::KeyGenerator, util::Polynomial};
 
 use blake2b_simd::Params;
 use pairing::{
-    bls12_381::{Fr, G1, G2},
-    CurveProjective, Field, PrimeField,
+    bls12_381::{Fr, G1Affine, G2Affine, G1, G2},
+    CurveAffine, CurveProjective, Field, PrimeField,
 };
 use rand::{thread_rng, Rng};
 use rand04_compat::RngExt;
@@ -63,7 +63,7 @@ impl NodeInfo {
     ///
     pub fn cal_coef(&self) -> Vec<G2> {
         let mut res: Vec<G2> = Vec::new();
-        for c in self.poly.coef.iter() {
+        for c in self.poly.0.iter() {
             let mut tmp = G2::one();
             tmp.mul_assign(*c);
             res.push(tmp);
@@ -77,7 +77,7 @@ impl NodeInfo {
         let mut jk = Fr::one();
         let mut res = Fr::zero();
 
-        for c in self.poly.coef.iter() {
+        for c in self.poly.0.iter() {
             let mut tmp = *c;
             tmp.mul_assign(&jk);
             res.add_assign(&tmp);
@@ -116,9 +116,53 @@ impl NodeInfo {
             .to_vec();
 
         let mut hash = [0 as u8; 32];
-        for i in 0..32 {
-            hash[i] = tmp[i];
-        }
+        hash[..32].clone_from_slice(&tmp[..32]);
         ChaChaRng::from_seed(hash).gen04()
+    }
+
+    ///
+    pub fn verify_single_signature(&self, hmsg: &G1, sig: &G1) -> bool {
+        self.mpk.map_or_else(
+            || false,
+            |mpk| {
+                G1Affine::from(*sig).pairing_with(&G2Affine::from(G2::one()))
+                    == G1Affine::from(*hmsg).pairing_with(&G2Affine::from(mpk))
+            },
+        )
+    }
+
+    ///
+    pub fn cal_lambda(st: usize, ed: usize, exc: usize, ids: &[u32]) -> Fr {
+        let mut up = Fr::one();
+        let mut down = Fr::one();
+        let k = ids[exc];
+
+        for (i, item) in ids.iter().enumerate().take(ed).skip(st) {
+            if i == exc {
+                continue;
+            }
+            let j = item;
+            // up
+            let mut res = i64::from(0 - j);
+            if res >= 0 {
+                let num = Fr::from_str(&res.to_string()).unwrap();
+                up.mul_assign(&num);
+            } else {
+                let num = Fr::from_str(&(-res as u32).to_string()).unwrap();
+                up.mul_assign(&num);
+            }
+
+            res = i64::from(k - j);
+            if res >= 0 {
+                let num = Fr::from_str(&res.to_string()).unwrap();
+                down.mul_assign(&num);
+            } else {
+                let num = Fr::from_str(&(-res as u32).to_string()).unwrap();
+                down.mul_assign(&num);
+            }
+        }
+        down.inverse();
+        up.mul_assign(&down);
+        up
     }
 }

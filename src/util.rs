@@ -1,17 +1,11 @@
 use pairing::bls12_381::Fr;
 use rand::{thread_rng, Rand};
 
-pub(crate) struct Polynomial {
-    pub(crate) order: usize,
-    pub(crate) coef: Vec<Fr>,
-}
+pub(crate) struct Polynomial(pub(crate) Vec<Fr>);
 
 impl Polynomial {
     pub(crate) fn new(order: usize) -> Self {
-        Polynomial {
-            order,
-            coef: generate_coef(order),
-        }
+        Polynomial(generate_coef(order))
     }
 }
 
