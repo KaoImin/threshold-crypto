@@ -14,8 +14,6 @@ pub(crate) struct KeyGenerator {
     ///
     pub(crate) coef: Vec<G2>,
     ///
-    pub(crate) n: usize,
-    ///
     pub(crate) t: usize,
     ///
     local_id: u32,
@@ -25,24 +23,15 @@ pub(crate) struct KeyGenerator {
 
 impl KeyGenerator {
     ///
-    pub(crate) fn new(local_id: u32, n: usize, t: usize) -> Self {
+    pub(crate) fn new(local_id: u32, _n: usize, t: usize) -> Self {
         KeyGenerator {
             a: BTreeMap::new(),
             qual: Vec::new(),
             local_id,
             coef: Vec::new(),
             user_poly_secret: BTreeMap::new(),
-            n,
             t,
         }
-    }
-
-    ///
-    pub(crate) fn get_mpk(&self) -> Result<G2, Error> {
-        if self.coef.is_empty() {
-            return Err(Error::NoPolyCoef);
-        }
-        Ok(self.coef[0])
     }
 
     ///

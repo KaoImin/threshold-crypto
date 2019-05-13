@@ -72,7 +72,7 @@ impl NodeInfo {
     }
 
     ///
-    pub fn calc_secret(&self, to_usr: u32) -> Fr {
+    pub fn cal_secret(&self, to_usr: u32) -> Fr {
         let j_fr = Fr::from_str(&to_usr.to_string()).unwrap();
         let mut jk = Fr::one();
         let mut res = Fr::zero();
